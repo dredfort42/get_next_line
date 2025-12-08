@@ -1,9 +1,9 @@
 #include "get_next_line.h"
 
-char	*next_line_from_storage(char *storage)
+char *next_line_from_storage(char *storage)
 {
-	int		i;
-	char	*tmp;
+	int i;
+	char *tmp;
 
 	if (!storage)
 		return (0);
@@ -23,11 +23,11 @@ char	*next_line_from_storage(char *storage)
 	return (tmp);
 }
 
-char	*remove_line_from_storage(char *storage)
+char *remove_line_from_storage(char *storage)
 {
-	char	*tmp;
-	int		i;
-	int		j;
+	char *tmp;
+	int i;
+	int j;
 
 	i = 0;
 	j = 0;
@@ -51,21 +51,22 @@ char	*remove_line_from_storage(char *storage)
 	return (tmp);
 }
 
-int	error(char *buffer)
+char *error(char *buffer)
 {
 	free(buffer);
-	return (-1);
+	return (NULL);
 }
 
-int	get_next_line(int fd, char **line)
+char *get_next_line(int fd)
 {
-	char			*buffer;
-	static char		*storage;
-	int				bytes_was_read;
+	char *buffer;
+	char *line;
+	static char *storage;
+	int bytes_was_read;
 
 	bytes_was_read = 1;
-	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (fd < 0 || fd > 1024 || !line || BUFFER_SIZE <= 0 || !buffer)
+	buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (fd < 0 || fd > 1024 || BUFFER_SIZE <= 0 || !buffer)
 		return (error(buffer));
 	while (!ft_strchr(storage, '\n') && bytes_was_read != 0)
 	{
@@ -76,9 +77,7 @@ int	get_next_line(int fd, char **line)
 		storage = ft_strjoin(storage, buffer);
 	}
 	free(buffer);
-	*line = next_line_from_storage(storage);
+	line = next_line_from_storage(storage);
 	storage = remove_line_from_storage(storage);
-	if (!bytes_was_read)
-		return (0);
-	return (1);
+	return (line);
 }
