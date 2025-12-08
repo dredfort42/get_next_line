@@ -5,6 +5,7 @@
 
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 size_t ft_strlen(const char *s);
 void *ft_memmove(void *dst, const void *src, size_t len);

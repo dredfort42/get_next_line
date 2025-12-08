@@ -66,7 +66,7 @@ char *get_next_line(int fd)
 
 	bytes_was_read = 1;
 	buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (fd < 0 || fd > 1024 || BUFFER_SIZE <= 0 || !buffer)
+	if (fd < 0 || fd > sysconf(_SC_OPEN_MAX) || BUFFER_SIZE <= 0 || !buffer)
 		return (error(buffer));
 	while (!ft_strchr(storage, '\n') && bytes_was_read != 0)
 	{
