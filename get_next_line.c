@@ -78,6 +78,7 @@ static char *remove_line_from_storage(char *storage)
 
 /**
  * @brief Reads a line from a file descriptor and returns it as a string.
+ *
  * @param fd The file descriptor to read from.
  * @return A pointer to the read line, or NULL on error or end of file.
  */

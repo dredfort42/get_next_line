@@ -1,70 +1,98 @@
 #include "get_next_line_bonus.h"
 
-char	*next_line_from_storage(char *storage)
+/**
+ * @brief Extracts the next line from the storage string.
+ *
+ * @param storage The storage string containing data read from the file descriptor.
+ * @return A pointer to the newly allocated string containing the next line,
+ *         or NULL on allocation failure.
+ */
+static char *next_line_from_storage(char *storage)
 {
-	int		i;
-	char	*tmp;
+	size_t i;
+	char *line;
 
-	if (!storage)
-		return (0);
+	if (!storage || !*storage)
+		return (NULL);
 	i = 0;
 	while (storage[i] && storage[i] != '\n')
 		i++;
-	tmp = malloc(sizeof(char) * (i + 1));
-	if (!tmp)
-		return (0);
+	line = (char *)malloc(sizeof(char) * (i + 2));
+	if (!line)
+		return (NULL);
 	i = 0;
 	while (storage[i] && storage[i] != '\n')
 	{
-		tmp[i] = storage[i];
+		line[i] = storage[i];
 		i++;
 	}
-	tmp[i] = '\0';
-	return (tmp);
+	if (storage[i] == '\n')
+		line[i++] = '\n';
+	line[i] = '\0';
+	return (line);
 }
 
-char	*remove_line_from_storage(char *storage)
+/**
+ * @brief Handles errors by freeing the buffer and returning NULL.
+ *
+ * @param buffer The buffer to free.
+ * @return NULL.
+ */
+static char *error(char *buffer)
 {
-	char	*tmp;
-	int		i;
-	int		j;
+	free(buffer);
+	return (NULL);
+}
 
-	i = 0;
-	j = 0;
+/**
+ * @brief Removes the extracted line from the storage string.
+ *
+ * @param storage The storage string containing data read from the file descriptor.
+ * @return A pointer to the newly allocated string with the extracted line removed,
+ *         or NULL if there is no remaining data.
+ */
+static char *remove_line_from_storage(char *storage)
+{
+	size_t i;
+	size_t j;
+	char *line;
+
 	if (!storage)
-		return (0);
+		return (NULL);
+	i = 0;
 	while (storage[i] && storage[i] != '\n')
 		i++;
 	if (!storage[i])
-	{
-		free(storage);
-		return (0);
-	}
-	tmp = malloc(sizeof(char) * ((ft_strlen(storage) - i) + 1));
-	if (!tmp)
-		return (0);
+		error(storage);
+	line = (char *)malloc(sizeof(char) * (ft_strlen(storage) - i));
+	if (!line)
+		error(storage);
 	i++;
+	j = 0;
 	while (storage[i])
-		tmp[j++] = storage[i++];
-	tmp[j] = '\0';
+		line[j++] = storage[i++];
+	line[j] = '\0';
 	free(storage);
-	return (tmp);
+	return (line);
 }
 
-int	error(char *buffer)
+/**
+ * @brief Reads the next line from the specified file descriptor.
+ *
+ * @param fd The file descriptor to read from.
+ * @param storage A pointer to the storage string for the file descriptor.
+ * @return A pointer to the newly allocated string containing the next line,
+ *         or NULL on allocation failure or end of file.
+ */
+static char *get_next_line_for_fd(int fd, char **storage)
 {
-	free(buffer);
-	return (-1);
-}
-
-int	next_line(int fd, char **line, char **storage)
-{
-	char			*buffer;
-	int				bytes_was_read;
+	char *buffer;
+	char *line;
+	ssize_t bytes_was_read;
 
 	bytes_was_read = 1;
-	buffer = malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (fd < 0 || fd > 1024 || !line || BUFFER_SIZE <= 0 || !buffer)
+	buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (!buffer || !storage || !*storage)
 		return (error(buffer));
 	while (!ft_strchr(*storage, '\n') && bytes_was_read != 0)
 	{
@@ -75,16 +103,23 @@ int	next_line(int fd, char **line, char **storage)
 		*storage = ft_strjoin(*storage, buffer);
 	}
 	free(buffer);
-	*line = next_line_from_storage(*storage);
+	line = next_line_from_storage(*storage);
 	*storage = remove_line_from_storage(*storage);
-	if (!bytes_was_read)
-		return (0);
-	return (1);
+	return (line);
 }
 
-int	get_next_line(int fd, char **line)
+/**
+ * @brief Reads a line from a file descriptor and returns it as a string.
+ *        Supports multiple file descriptors.
+ *
+ * @param fd The file descriptor to read from.
+ * @return A pointer to the read line, or NULL on error or end of file.
+ */
+char *get_next_line(int fd)
 {
-	static char	*storage[1024];
+	static char *storage[MAX_PROCESS_FD];
 
-	return (next_line(fd, line, &storage[fd]));
+	if (fd < 0 || fd >= MAX_PROCESS_FD || BUFFER_SIZE <= 0)
+		return (NULL);
+	return (get_next_line_for_fd(fd, &storage[fd]));
 }
