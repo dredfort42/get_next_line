@@ -45,6 +45,53 @@ static char *error(char *buffer)
 }
 
 /**
+ * @brief Initializes storage if it's NULL.
+ *
+ * @param storage A pointer to the storage string.
+ * @return 0 on success, -1 on failure.
+ */
+static int init_storage(char **storage)
+{
+	if (!*storage)
+	{
+		*storage = (char *)malloc(1);
+		if (!*storage)
+			return (-1);
+		(*storage)[0] = '\0';
+	}
+	return (0);
+}
+
+/**
+ * @brief Reads from fd and appends to storage.
+ *
+ * @param fd The file descriptor to read from.
+ * @param storage A pointer to the storage string.
+ * @param buffer The buffer for reading.
+ * @return 0 on success, -1 on error.
+ */
+static int read_to_storage(int fd, char **storage, char *buffer)
+{
+	ssize_t bytes_read;
+	char *temp;
+
+	bytes_read = 1;
+	while (!ft_strchr(*storage, '\n') && bytes_read != 0)
+	{
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		if (bytes_read < 0)
+			return (-1);
+		buffer[bytes_read] = '\0';
+		temp = ft_strjoin(*storage, buffer);
+		if (!temp)
+			return (-1);
+		free(*storage);
+		*storage = temp;
+	}
+	return (0);
+}
+
+/**
  * @brief Removes the extracted line from the storage string.
  *
  * @param storage The storage string containing data read from the file descriptor.
@@ -88,32 +135,14 @@ static char *get_next_line_for_fd(int fd, char **storage)
 {
 	char *buffer;
 	char *line;
-	char *temp;
-	ssize_t bytes_was_read;
 
-	bytes_was_read = 1;
 	buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
 	if (!buffer || !storage)
 		return (error(buffer));
-	if (!*storage)
-	{
-		*storage = (char *)malloc(1);
-		if (!*storage)
-			return (error(buffer));
-		(*storage)[0] = '\0';
-	}
-	while (!ft_strchr(*storage, '\n') && bytes_was_read != 0)
-	{
-		bytes_was_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_was_read < 0)
-			return (error(buffer));
-		buffer[bytes_was_read] = '\0';
-		temp = ft_strjoin(*storage, buffer);
-		if (!temp)
-			return (error(buffer));
-		free(*storage);
-		*storage = temp;
-	}
+	if (init_storage(storage) == -1)
+		return (error(buffer));
+	if (read_to_storage(fd, storage, buffer) == -1)
+		return (error(buffer));
 	free(buffer);
 	line = next_line_from_storage(*storage);
 	*storage = remove_line_from_storage(*storage);
