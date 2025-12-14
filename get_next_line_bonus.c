@@ -63,10 +63,10 @@ static char *remove_line_from_storage(char *storage)
 	while (storage[i] && storage[i] != '\n')
 		i++;
 	if (!storage[i])
-		error(storage);
+		return (error(storage));
 	line = (char *)malloc(sizeof(char) * (ft_strlen(storage) - i));
 	if (!line)
-		error(storage);
+		return (error(storage));
 	i++;
 	j = 0;
 	while (storage[i])
@@ -88,19 +88,31 @@ static char *get_next_line_for_fd(int fd, char **storage)
 {
 	char *buffer;
 	char *line;
+	char *temp;
 	ssize_t bytes_was_read;
 
 	bytes_was_read = 1;
 	buffer = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!buffer || !storage || !*storage)
+	if (!buffer || !storage)
 		return (error(buffer));
+	if (!*storage)
+	{
+		*storage = (char *)malloc(1);
+		if (!*storage)
+			return (error(buffer));
+		(*storage)[0] = '\0';
+	}
 	while (!ft_strchr(*storage, '\n') && bytes_was_read != 0)
 	{
 		bytes_was_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_was_read < 0)
 			return (error(buffer));
 		buffer[bytes_was_read] = '\0';
-		*storage = ft_strjoin(*storage, buffer);
+		temp = ft_strjoin(*storage, buffer);
+		if (!temp)
+			return (error(buffer));
+		free(*storage);
+		*storage = temp;
 	}
 	free(buffer);
 	line = next_line_from_storage(*storage);

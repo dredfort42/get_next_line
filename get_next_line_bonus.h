@@ -1,7 +1,7 @@
 #ifndef GET_NEXT_LINE_BONUS_H
 #define GET_NEXT_LINE_BONUS_H
 
-#define BUFFER_SIZE 1024
+// #define BUFFER_SIZE 1024
 
 // Define maximum number of file descriptors to handle
 #define MAX_PROCESS_FD 1024
