@@ -12,17 +12,15 @@
 
 #include "get_next_line_bonus.h"
 
-#include "get_next_line.h"
-
 /**
  * @brief Calculates the length of a string.
  *
  * @param s The input string.
  * @return The length of the string.
  */
-size_t	ft_strlen(const char *s)
+size_t ft_strlen(const char *s)
 {
-	size_t	i;
+	size_t i;
 
 	if (!s)
 		return (0);
@@ -39,14 +37,14 @@ size_t	ft_strlen(const char *s)
  * @param len The number of bytes to copy.
  * @return A pointer to the destination memory area dst.
  */
-static void	*memmove_safely(
+static void *memmove_safely(
 	unsigned char *dst,
 	const unsigned char *src,
 	size_t len)
 {
-	unsigned char		*d;
-	const unsigned char	*s;
-	size_t				i;
+	unsigned char *d;
+	const unsigned char *s;
+	size_t i;
 
 	d = (unsigned char *)dst;
 	s = (const unsigned char *)src;
@@ -80,17 +78,16 @@ static void	*memmove_safely(
  * @param len The number of bytes to copy.
  * @return A pointer to the destination memory area dst.
  */
-void	*ft_memmove(void *dst, const void *src, size_t len)
+void *ft_memmove(void *dst, const void *src, size_t len)
 {
 	if (!dst && !src)
 		return (NULL);
 	if (len == 0 || dst == src)
 		return (dst);
 	return (memmove_safely(
-			(unsigned char *)dst,
-			(const unsigned char *)src,
-			len)
-	);
+		(unsigned char *)dst,
+		(const unsigned char *)src,
+		len));
 }
 
 /**
@@ -101,11 +98,11 @@ void	*ft_memmove(void *dst, const void *src, size_t len)
  * @return A pointer to the newly allocated string containing the concatenation
  *         of s1 and s2, or NULL on allocation failure.
  */
-char	*ft_strjoin(char const *s1, char const *s2)
+char *ft_strjoin(char const *s1, char const *s2)
 {
-	size_t	len1;
-	size_t	len2;
-	char	*str;
+	size_t len1;
+	size_t len2;
+	char *str;
 
 	if (!s1 || !s2)
 		return (NULL);
@@ -128,7 +125,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
  * @return A pointer to the first occurrence of the character in the string,
  *         or NULL if the character is not found.
  */
-char	*ft_strchr(const char *s, int c)
+char *ft_strchr(const char *s, int c)
 {
 	if (!s)
 		return (NULL);
